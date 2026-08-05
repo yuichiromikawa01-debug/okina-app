@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { imageSrcCandidates } from "@/lib/image-paths";
 
 type CoverImageProps = {
   src: string;
@@ -21,10 +22,13 @@ type CoverImageProps = {
 function hasExplicitPixelSize(className?: string): boolean {
   if (!className) return false;
   if (/\b(min|max)-(h|w)-/.test(className)) return false;
-  return /\b(h-\d|h-\[|w-\d|w-\[|size-\d|size-\[)/.test(className);
+  if (/\bsize-\d|\bsize-\[/.test(className)) return true;
+  const hasWidth = /\bw-\d|\bw-\[/.test(className);
+  const hasHeight = /\bh-\d|\bh-\[/.test(className);
+  return hasWidth && hasHeight;
 }
 
-export function CoverImage({
+function CoverImageContent({
   src,
   alt,
   fallbackTitle,
@@ -36,15 +40,26 @@ export function CoverImage({
   sizes = "(max-width: 390px) 100vw, 390px",
   fill = false,
 }: CoverImageProps) {
-  const [error, setError] = useState(false);
+  const candidates = useMemo(() => imageSrcCandidates(src), [src]);
+  const [candidateIndex, setCandidateIndex] = useState(0);
+  const [exhausted, setExhausted] = useState(false);
   const hasFixedSize = fill || hasExplicitPixelSize(className);
+  const currentSrc = candidates[candidateIndex] ?? src;
 
-  if (error) {
+  const handleError = () => {
+    if (candidateIndex + 1 < candidates.length) {
+      setCandidateIndex((index) => index + 1);
+      return;
+    }
+    setExhausted(true);
+  };
+
+  if (exhausted) {
     return (
       <div
         className={cn(
           "flex items-center justify-center bg-paper p-4",
-          fill && "absolute inset-0",
+          fill && "absolute inset-0 size-full",
           !hasFixedSize && aspectRatio,
           className
         )}
@@ -60,13 +75,14 @@ export function CoverImage({
     <div
       className={cn(
         "relative overflow-hidden bg-paper",
-        fill && "absolute inset-0",
+        fill && "absolute inset-0 size-full",
         !hasFixedSize && aspectRatio,
         className
       )}
     >
       <Image
-        src={src}
+        key={currentSrc}
+        src={currentSrc}
         alt={alt}
         fill
         className={cn(
@@ -75,8 +91,12 @@ export function CoverImage({
         style={{ objectPosition }}
         sizes={sizes}
         priority={priority}
-        onError={() => setError(true)}
+        onError={handleError}
       />
     </div>
   );
+}
+
+export function CoverImage(props: CoverImageProps) {
+  return <CoverImageContent key={props.src} {...props} />;
 }

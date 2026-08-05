@@ -9,12 +9,16 @@ type ComposerProps = {
   collectionId?: string;
   threadId?: string;
   placeholder?: string;
+  variant?: "light" | "dark";
+  immersiveTint?: string;
 };
 
 export function Composer({
   collectionId,
   threadId,
   placeholder = "Okina に聞く",
+  variant = "light",
+  immersiveTint,
 }: ComposerProps) {
   const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
@@ -62,10 +66,26 @@ export function Composer({
 
   const hasText = value.trim().length > 0;
 
+  const outerClass =
+    variant === "dark"
+      ? "fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] border-t border-white/10 pt-4 backdrop-blur-[12px]"
+      : immersiveTint
+        ? "fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] pt-4"
+        : "fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] bg-gradient-to-t from-bg via-bg/95 to-transparent pt-4";
+
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] bg-gradient-to-t from-bg via-bg/95 to-transparent pt-4"
-      style={{ paddingBottom: "var(--safe-bottom)" }}
+      className={outerClass}
+      style={{
+        paddingBottom: "var(--safe-bottom)",
+        ...(variant === "dark"
+          ? {
+              backgroundColor:
+                immersiveTint ?? "rgba(26, 26, 46, 0.83)",
+              transition: "background-color 600ms ease",
+            }
+          : {}),
+      }}
     >
       <div className="px-4 pb-3">
         <div

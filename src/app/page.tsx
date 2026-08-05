@@ -18,7 +18,7 @@ export default function HomePage() {
       <HeroCarousel collections={featured} />
 
       <section className="mb-8 px-5">
-        <h2 className="mb-4 text-xl font-bold tracking-tight">コレクション</h2>
+        <h2 className="mb-4 text-xl font-bold tracking-tight">人気</h2>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
           {collections.map((collection) => (
             <CollectionCard key={collection.id} collection={collection} />

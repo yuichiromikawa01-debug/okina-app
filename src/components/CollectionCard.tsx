@@ -19,23 +19,25 @@ export function CollectionCard({
     return (
       <Link
         href={href}
-        className="snap-item block w-[78%] shrink-0 first:pl-5 last:pr-5"
+        className="snap-item flex w-[260px] shrink-0 flex-col"
       >
-        <CoverImage
-          src={collection.heroImage}
-          alt={collection.title}
-          fallbackTitle={collection.title}
-          aspectRatio="aspect-[3/4]"
-          className="w-full rounded-2xl shadow-lg shadow-black/10"
-          objectPosition="center top"
-          priority={priority}
-          sizes="78vw"
-        />
-        <div className="mt-3 px-1">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl shadow-lg shadow-black/10">
+          <CoverImage
+            src={collection.heroImage}
+            alt={collection.title}
+            fallbackTitle={collection.title}
+            fill
+            className="rounded-2xl"
+            objectPosition="center top"
+            priority={priority}
+            sizes="260px"
+          />
+        </div>
+        <div className="mt-3 min-h-[6.75rem] px-1">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted line-clamp-1">
             {collection.category}
           </p>
-          <h3 className="mt-0.5 text-lg font-semibold leading-tight">
+          <h3 className="mt-0.5 line-clamp-2 text-lg font-semibold leading-tight">
             {collection.title}
           </h3>
           <p className="mt-1 text-sm text-muted line-clamp-2">
@@ -66,16 +68,18 @@ export function CollectionCard({
 
   return (
     <Link href={href} className="block shrink-0 w-[140px]">
-      <CoverImage
-        src={collection.squareImage ?? collection.heroImage}
-        alt={collection.title}
-        fallbackTitle={collection.title}
-        aspectRatio="aspect-square"
-        className="w-full rounded-xl"
-        objectPosition="center"
-        priority={priority}
-        sizes="140px"
-      />
+      <div className="relative aspect-square w-full overflow-hidden rounded-xl">
+        <CoverImage
+          src={collection.squareImage ?? collection.heroImage}
+          alt={collection.title}
+          fallbackTitle={collection.title}
+          fill
+          className="rounded-xl"
+          objectPosition="center"
+          priority={priority}
+          sizes="140px"
+        />
+      </div>
       <h3 className="mt-2 text-sm font-semibold leading-snug line-clamp-2">
         {collection.title}
       </h3>

@@ -8,29 +8,43 @@ Drop images into the paths below. When a file is missing, the UI shows a paper (
 |------|------|--------|----------|-------|
 | Collection hero | `public/collections/{slug}/hero.png` | 3:4 vertical | 1200×1600 | Required |
 | Collection square | `public/collections/{slug}/square.png` | 1:1 | 800×800 | Optional (falls back to hero) |
+| Collection detail | `public/collections/{slug}/detail.png` | ~16:9 wide | 1200×680 | Optional (falls back to hero on detail page) |
 | Work cover | `public/works/{work-slug}/cover.png` | 2:3 | 600×900 | Book cover |
+
+**Extension fallback:** The app tries `.png` first, then `.jpg`, `.jpeg`, and `.webp`. Use `.png` for new assets; legacy `.jpg` placeholders still load automatically.
+
+**Demo placeholders (missing files only):** `python3 scripts/generate-placeholders.py`
+
+- Creates `.png` files only where no file exists yet — **never overwrites** your images.
+- Do **not** run with `--force` unless you intentionally want to wipe and regenerate demo placeholders.
+- After dropping real images into the paths below, the script will skip those paths automatically.
 
 ## Collection images
 
 ### heartbreak — 失恋
 - [ ] `public/collections/heartbreak/hero.png` **(required)**
 - [ ] `public/collections/heartbreak/square.png` (optional)
+- [ ] `public/collections/heartbreak/detail.png` (optional)
 
 ### wine-deep — 奥深いワインの世界
 - [ ] `public/collections/wine-deep/hero.png` **(required)**
 - [ ] `public/collections/wine-deep/square.png` (optional)
+- [ ] `public/collections/wine-deep/detail.png` (optional)
 
 ### baystars-success — DeNAベイスターズ成功の要因
 - [ ] `public/collections/baystars-success/hero.png` **(required)**
 - [ ] `public/collections/baystars-success/square.png` (optional)
+- [ ] `public/collections/baystars-success/detail.png` (optional)
 
 ### ohtani-mind — 大谷翔平の頭の中
 - [ ] `public/collections/ohtani-mind/hero.png` **(required)**
 - [ ] `public/collections/ohtani-mind/square.png` (optional)
+- [ ] `public/collections/ohtani-mind/detail.png` (optional)
 
 ### twenties-goals — 20代のうちにしたいこと
 - [ ] `public/collections/twenties-goals/hero.png` **(required)**
 - [ ] `public/collections/twenties-goals/square.png` (optional)
+- [ ] `public/collections/twenties-goals/detail.png` (optional)
 
 ## Work cover images
 

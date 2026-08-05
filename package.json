@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:stable": "next dev --no-turbopack",
+    "dev:local": "./scripts/dev.sh",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

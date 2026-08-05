@@ -53,22 +53,23 @@ export function ChatView({ threadId, relatedCollections }: ChatViewProps) {
         </h1>
       </div>
 
-      <div className="space-y-4">
-        {thread.messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[88%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
-                message.role === "user"
-                  ? "bg-ink text-white"
-                  : "bg-white/80 text-ink shadow-sm ring-1 ring-black/6"
-              }`}
-            >
-              <p>{message.content}</p>
+      <div className="space-y-6">
+        {thread.messages.map((message) =>
+          message.role === "user" ? (
+            <div key={message.id} className="flex justify-end">
+              <div className="max-w-[88%] rounded-2xl bg-ink px-4 py-3 text-[15px] leading-relaxed text-white">
+                <p>{message.content}</p>
+              </div>
+            </div>
+          ) : (
+            <article key={message.id} className="text-[15px] leading-relaxed text-ink">
+              {message.content.split("\n\n").map((paragraph, index) => (
+                <p key={index} className={index > 0 ? "mt-4" : undefined}>
+                  {paragraph}
+                </p>
+              ))}
               {message.citations && message.citations.length > 0 && (
-                <div className="mt-3 space-y-2 border-t border-black/8 pt-3">
+                <div className="mt-4 space-y-2">
                   {message.citations.map((cite) => {
                     const work = getWorkById(cite.workId);
                     return (
@@ -87,9 +88,9 @@ export function ChatView({ threadId, relatedCollections }: ChatViewProps) {
                   })}
                 </div>
               )}
-            </div>
-          </div>
-        ))}
+            </article>
+          )
+        )}
       </div>
 
       {showSuggestions && (

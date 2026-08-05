@@ -12,6 +12,7 @@ export type Collection = {
   essay: string;
   heroImage: string;
   squareImage?: string;
+  detailImage?: string;
   workIds: string[];
   inlineWorks?: InlineWorkEmbed[];
 };

@@ -53,20 +53,137 @@ body {
   scroll-snap-stop: always;
 }
 
-/* Essay typography */
+/* Essay typography — Note-style long-form reading */
 .essay-body {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.75;
+  font-size: 16px;
+  line-height: 2;
+  letter-spacing: 0.02em;
   color: rgba(0, 0, 0, 0.82);
+  -webkit-font-smoothing: antialiased;
 }
 
-.essay-body p + p {
-  margin-top: 1rem;
+.essay-body p {
+  margin: 0;
 }
 
-.essay-body > div + div {
-  margin-top: 1rem;
+.essay-body strong {
+  font-weight: 700;
+}
+
+.essay-body em {
+  font-style: italic;
+}
+
+.essay-body .essay-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+
+.essay-body .essay-list li + li {
+  margin-top: 0.35rem;
+}
+
+.essay-body .essay-block + .essay-block {
+  margin-top: 1.75rem;
+}
+
+.essay-body .essay-block:has(.essay-heading) + .essay-block {
+  margin-top: 0;
+}
+
+.essay-body .essay-heading {
+  line-height: 1.4;
+  margin: 0;
+}
+
+.essay-body .essay-heading--1 {
+  font-size: 1.875rem;
+  font-weight: 800;
+  margin-top: 3rem;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.03em;
+  line-height: 1.3;
+}
+
+.essay-body .essay-heading--2 {
+  font-size: 1.4375rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.essay-body .essay-heading--3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.essay-body .essay-block:first-child .essay-heading--1,
+.essay-body .essay-block:first-child .essay-heading--2,
+.essay-body .essay-block:first-child .essay-heading--3 {
+  margin-top: 0;
+}
+
+.essay-body .essay-block:has(.essay-heading--1) + .essay-block {
+  margin-top: 0;
+}
+
+.essay-body .essay-block:has(.essay-heading--2) + .essay-block:not(:has(.essay-heading)) {
+  margin-top: 0;
+}
+
+.essay-body .essay-block:has(.essay-heading--3) + .essay-block:not(:has(.essay-heading)) {
+  margin-top: 0;
+}
+
+.essay-body .essay-quote {
+  margin: 0;
+  padding: 0 0 0 1rem;
+  border-left: 3px solid rgba(0, 0, 0, 0.18);
+}
+
+.essay-body .essay-quote p {
+  font-size: inherit;
+  line-height: inherit;
+  color: rgba(0, 0, 0, 0.72);
+  font-style: italic;
+}
+
+.essay-body--dark {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.essay-body--dark strong {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.essay-body--dark em {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.essay-body--dark .essay-heading--1 {
+  color: rgba(255, 255, 255, 1);
+}
+
+.essay-body--dark .essay-heading--2 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.essay-body--dark .essay-heading--3 {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.essay-body--dark .essay-quote {
+  border-left-color: rgba(255, 255, 255, 0.35);
+}
+
+.essay-body--dark .essay-quote p {
+  color: rgba(255, 255, 255, 0.78);
 }
 
 /* Hide scrollbar in drawer */
