@@ -1,0 +1,47 @@
+[
+  {
+    "id": "heartbreak",
+    "slug": "heartbreak",
+    "title": "失恋",
+    "category": "ライフスタイル / 文学",
+    "description": "別れのあとに残る言葉と、夜更けの感情を綴ったコレクション。",
+    "featured": true,
+    "order": 1
+  },
+  {
+    "id": "wine-deep",
+    "slug": "wine-deep",
+    "title": "奥深いワインの世界",
+    "category": "フード / カルチャー",
+    "description": "テロワールからグラス選びまで、ワインの奥行きを味わう。",
+    "featured": true,
+    "order": 2
+  },
+  {
+    "id": "baystars-success",
+    "slug": "baystars-success",
+    "title": "DeNAベイスターズ成功の要因",
+    "category": "マーケティング / 組織",
+    "description": "球団再生の裏側——ファン体験と組織文化の設計。",
+    "featured": false,
+    "order": 3
+  },
+  {
+    "id": "ohtani-mind",
+    "slug": "ohtani-mind",
+    "title": "大谷翔平の頭の中",
+    "category": "スポーツ / ライフスタイル",
+    "description": "二刀流の哲学——集中、準備、そして静かな野心。",
+    "featured": true,
+    "order": 4
+  },
+  {
+    "id": "twenties-goals",
+    "slug": "twenties-goals",
+    "title": "20代のうちにしたいこと",
+    "category": "ライフスタイル",
+    "description": "時間の使い方、冒険、人間関係——若さを設計する。",
+    "featured": false,
+    "order": 5
+  }
+]

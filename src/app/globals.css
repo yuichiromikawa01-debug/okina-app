@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f5f1e9;
+  --ink: #000000;
+  --accent: #c0d800;
+  --paper: #f5f1e9;
+  --muted: rgba(0, 0, 0, 0.55);
+  --border: rgba(0, 0, 0, 0.08);
+  --composer-height: 88px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
+  --color-paper: var(--paper);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-libre-baskerville);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: #e8e4dc;
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  min-height: 100%;
+  overscroll-behavior: none;
+}
+
+/* Carousel snap */
+.snap-carousel {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.snap-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.snap-item {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+/* Essay typography */
+.essay-body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(0, 0, 0, 0.82);
+}
+
+.essay-body p + p {
+  margin-top: 1rem;
+}
+
+.essay-body > div + div {
+  margin-top: 1rem;
+}
+
+/* Hide scrollbar in drawer */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
