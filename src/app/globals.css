@@ -7,7 +7,7 @@
   --paper: #f5f1e9;
   --muted: rgba(0, 0, 0, 0.55);
   --border: rgba(0, 0, 0, 0.08);
-  --composer-height: 88px;
+  --composer-height: 118px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -212,13 +212,10 @@ body {
   font-style: italic;
 }
 
-/* Composer chat input — vertically center text and placeholder in the pill */
+/* Composer chat input — single-line growth, natural row alignment */
 .composer-textarea {
   display: block;
   margin: 0;
+  margin-left: -4px;
   field-sizing: content;
-}
-
-.composer-textarea::placeholder {
-  line-height: 1.25rem;
 }

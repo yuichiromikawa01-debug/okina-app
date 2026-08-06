@@ -162,7 +162,7 @@ export function Composer({
         )}
 
         <div
-          className={`flex min-h-[52px] items-center gap-2 rounded-full border bg-white px-3 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-shadow ${
+          className={`flex min-h-[76px] items-center gap-0.5 rounded-[28px] border bg-white px-3.5 py-2.5 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-shadow ${
             focused
               ? "border-black/12 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
               : "border-black/8"
@@ -170,7 +170,7 @@ export function Composer({
         >
           <button
             type="button"
-            className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
             aria-label="添付"
           >
             <svg
@@ -196,7 +196,7 @@ export function Composer({
             placeholder={displayPlaceholder}
             rows={1}
             disabled={busy}
-            className="composer-textarea max-h-20 min-h-9 flex-1 resize-none self-center bg-transparent py-2 text-[15px] leading-5 outline-none placeholder:text-muted/80 disabled:opacity-50"
+            className="composer-textarea max-h-24 min-h-10 flex-1 -translate-y-1 resize-none bg-transparent px-0 py-1 text-[15px] leading-5 outline-none placeholder:text-muted/80 disabled:opacity-50"
           />
 
           {hasText ? (
@@ -204,7 +204,7 @@ export function Composer({
               type="button"
               onClick={handleSubmit}
               disabled={busy}
-              className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full bg-accent text-ink transition hover:brightness-105 disabled:opacity-40"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-ink transition hover:brightness-105 disabled:opacity-40"
               aria-label={busy ? "送信中" : "送信"}
             >
               {busy ? (
@@ -231,7 +231,7 @@ export function Composer({
           ) : (
             <button
               type="button"
-              className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
               aria-label="音声入力"
             >
               <svg
