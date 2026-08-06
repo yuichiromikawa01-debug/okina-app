@@ -43,7 +43,7 @@ export function Drawer({ open, onClose }: DrawerProps) {
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
           >
             <div className="flex items-center justify-between px-5 pt-12 pb-3">
-              <span className="font-display text-[22px] font-normal tracking-tight text-ink">
+              <span className="font-display text-[28px] font-normal leading-tight tracking-tight text-ink">
                 Okina
               </span>
               <button

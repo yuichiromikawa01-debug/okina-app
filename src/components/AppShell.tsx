@@ -53,7 +53,7 @@ export function AppShell({
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="font-display text-[22px] font-normal tracking-tight text-ink"
+            className="font-display text-[28px] font-normal leading-tight tracking-tight text-ink"
             aria-label="メニューを開く"
           >
             Okina
