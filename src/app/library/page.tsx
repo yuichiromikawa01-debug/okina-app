@@ -8,15 +8,16 @@ import { BookCard } from "@/components/BookCard";
 import {
   getAllCollections,
   libraryPickupQuestions,
-  ownedWorkIds,
   getWorkById,
 } from "@/data/repositories";
 import { startChat } from "@/lib/threads";
+import { useEntitlements } from "@/hooks/useEntitlements";
 
 export default function LibraryPage() {
   const router = useRouter();
+  const { ownedIds } = useEntitlements();
   const collections = getAllCollections().slice(0, 4);
-  const ownedWorks = ownedWorkIds
+  const ownedWorks = ownedIds
     .map((id) => getWorkById(id))
     .filter(Boolean);
 
@@ -34,21 +35,22 @@ export default function LibraryPage() {
         </p>
 
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">
+          <h2 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
             ピックアップの質問
           </h2>
-          <div className="flex flex-col gap-2">
+          <ul className="divide-y divide-black/6">
             {libraryPickupQuestions.map((question) => (
-              <button
-                key={question}
-                type="button"
-                onClick={() => handleQuestion(question)}
-                className="rounded-xl bg-white/80 px-4 py-3.5 text-left text-[15px] leading-snug shadow-sm ring-1 ring-black/6 transition hover:bg-white active:scale-[0.98]"
-              >
-                {question}
-              </button>
+              <li key={question} className="-mx-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuestion(question)}
+                  className="w-full rounded-lg px-2 py-3.5 text-left text-[15px] leading-relaxed text-ink transition hover:bg-black/4 active:opacity-80"
+                >
+                  {question}
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
         <section className="mt-8">
@@ -72,11 +74,15 @@ export default function LibraryPage() {
 
         <section className="mt-8">
           <h2 className="mb-4 text-lg font-bold">所持している本</h2>
-          <div className="grid grid-cols-3 gap-4">
-            {ownedWorks.map((work) => (
-              <BookCard key={work!.id} work={work!} variant="grid" />
-            ))}
-          </div>
+          {ownedWorks.length > 0 ? (
+            <div className="grid grid-cols-3 gap-4">
+              {ownedWorks.map((work) => (
+                <BookCard key={work!.id} work={work!} variant="grid" />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted">まだ購入した本はありません</p>
+          )}
         </section>
       </div>
     </AppShell>

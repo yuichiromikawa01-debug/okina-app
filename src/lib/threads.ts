@@ -1,7 +1,34 @@
 import type { Thread } from "@/domain/types";
-import { generateMockReply, generateThreadTitle } from "@/lib/chat-mock";
+import {
+  generateCollectionSelectReply,
+  generateMockReply,
+  generateThreadTitle,
+} from "@/lib/chat-mock";
 
 const STORAGE_KEY = "okina-threads";
+const thinkingThreads = new Set<string>();
+
+function thinkDelay(): Promise<void> {
+  const ms = 1200 + Math.random() * 600;
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function isThreadThinking(threadId: string): boolean {
+  return thinkingThreads.has(threadId);
+}
+
+function setThreadThinking(threadId: string, thinking: boolean): void {
+  if (thinking) {
+    thinkingThreads.add(threadId);
+  } else {
+    thinkingThreads.delete(threadId);
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("okina-thinking-changed", { detail: { threadId } })
+    );
+  }
+}
 
 function readThreads(): Thread[] {
   if (typeof window === "undefined") return [];
@@ -48,7 +75,8 @@ export function addMessageToThread(
   threadId: string,
   role: "user" | "assistant",
   content: string,
-  citations?: Thread["messages"][0]["citations"]
+  citations?: Thread["messages"][0]["citations"],
+  blocks?: Thread["messages"][0]["blocks"]
 ): Thread | undefined {
   const threads = readThreads();
   const index = threads.findIndex((t) => t.id === threadId);
@@ -59,6 +87,7 @@ export function addMessageToThread(
     role,
     content,
     citations,
+    blocks,
     createdAt: new Date().toISOString(),
   };
 
@@ -73,25 +102,113 @@ export function addMessageToThread(
   return thread;
 }
 
-export function sendMessage(threadId: string, content: string): Thread | undefined {
+export function setThreadCollection(
+  threadId: string,
+  collectionId: string
+): Thread | undefined {
+  const threads = readThreads();
+  const index = threads.findIndex((t) => t.id === threadId);
+  if (index === -1) return undefined;
+
+  const thread = {
+    ...threads[index],
+    collectionId,
+    updatedAt: new Date().toISOString(),
+  };
+  threads[index] = thread;
+  writeThreads(threads);
+  notifyThreadsChanged();
+  return thread;
+}
+
+export function clearThreadCollection(threadId: string): Thread | undefined {
+  const threads = readThreads();
+  const index = threads.findIndex((t) => t.id === threadId);
+  if (index === -1) return undefined;
+
+  const thread = { ...threads[index] };
+  delete thread.collectionId;
+  thread.updatedAt = new Date().toISOString();
+  threads[index] = thread;
+  writeThreads(threads);
+  notifyThreadsChanged();
+  return thread;
+}
+
+export async function sendMessage(
+  threadId: string,
+  content: string
+): Promise<Thread | undefined> {
   const trimmed = content.trim();
   if (!trimmed) return undefined;
 
   addMessageToThread(threadId, "user", trimmed);
+  notifyThreadsChanged();
+
   const thread = getThreadById(threadId);
   if (!thread) return undefined;
 
-  const reply = generateMockReply(trimmed, thread);
-  const result = addMessageToThread(threadId, "assistant", reply.content, reply.citations);
+  setThreadThinking(threadId, true);
+  await thinkDelay();
+
+  const current = getThreadById(threadId);
+  if (!current) {
+    setThreadThinking(threadId, false);
+    return undefined;
+  }
+
+  const reply = generateMockReply(trimmed, current);
+  const result = addMessageToThread(
+    threadId,
+    "assistant",
+    reply.content,
+    reply.citations,
+    reply.blocks
+  );
+  setThreadThinking(threadId, false);
+  notifyThreadsChanged();
+  return result;
+}
+
+export async function selectCollectionWithReply(
+  threadId: string,
+  collectionId: string
+): Promise<Thread | undefined> {
+  const thread = getThreadById(threadId);
+  if (!thread) return undefined;
+
+  const firstUserMessage = thread.messages.find((m) => m.role === "user");
+  setThreadCollection(threadId, collectionId);
+
+  if (!firstUserMessage) {
+    notifyThreadsChanged();
+    return getThreadById(threadId);
+  }
+
+  setThreadThinking(threadId, true);
+  await thinkDelay();
+
+  const reply = generateCollectionSelectReply(
+    firstUserMessage.content,
+    collectionId
+  );
+  const result = addMessageToThread(
+    threadId,
+    "assistant",
+    reply.content,
+    reply.citations,
+    reply.blocks
+  );
+  setThreadThinking(threadId, false);
   notifyThreadsChanged();
   return result;
 }
 
 export function startChat(message: string, collectionId?: string): Thread {
   const thread = createThread(collectionId, message);
-  sendMessage(thread.id, message);
   notifyThreadsChanged();
-  return getThreadById(thread.id)!;
+  void sendMessage(thread.id, message);
+  return thread;
 }
 
 function notifyThreadsChanged() {

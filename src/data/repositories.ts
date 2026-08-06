@@ -1,4 +1,5 @@
 import type { Collection, Work } from "@/domain/types";
+import { getOwnedWorkIds, SEED_OWNED_WORK_IDS } from "@/lib/entitlements";
 import collectionsIndex from "./catalog/collections.json";
 import heartbreak from "./catalog/heartbreak.json";
 import wineDeep from "./catalog/wine-deep.json";
@@ -84,8 +85,11 @@ export const libraryPickupQuestions = [
   "スポーツビジネスの成功事例を教えて",
 ];
 
-export const ownedWorkIds = [
-  "7f3a2b1c-4d5e-6f70-8192-a3b4c5d6e7f8",
-  "ce8f7051-92a3-b415-c637-f8091011223",
-  "68c69eafb-3da4-5fc6-6ad7-78899001123",
-];
+export { SEED_OWNED_WORK_IDS };
+
+export function getOwnedWorkIdsFromEntitlements(): string[] {
+  return getOwnedWorkIds();
+}
+
+/** @deprecated Use getOwnedWorkIdsFromEntitlements() in client components */
+export const ownedWorkIds = SEED_OWNED_WORK_IDS;

@@ -37,7 +37,7 @@ function CoverImageContent({
   objectFit = "cover",
   objectPosition = "center",
   priority,
-  sizes = "(max-width: 390px) 100vw, 390px",
+  sizes = "(max-width: 768px) 100vw, 390px",
   fill = false,
 }: CoverImageProps) {
   const candidates = useMemo(() => imageSrcCandidates(src), [src]);

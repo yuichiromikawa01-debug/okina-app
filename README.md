@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-[http://localhost:3000](http://localhost:3000) — 390px 幅（スマホ）で見るのがおすすめ。
+[http://localhost:3000](http://localhost:3000) — スマホ実機またはブラウザのモバイル表示で確認。デスクトップでは 390px 幅の中央カード表示になります。
 
 ## 画像の追加
 

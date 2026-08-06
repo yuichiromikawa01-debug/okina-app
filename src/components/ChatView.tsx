@@ -1,27 +1,147 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import type { Thread, Collection } from "@/domain/types";
-import { getThreadById } from "@/lib/threads";
+import { useCallback, useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Collection, Message, Thread } from "@/domain/types";
 import { getWorkById } from "@/data/repositories";
+import {
+  getThreadById,
+  isThreadThinking,
+  selectCollectionWithReply,
+} from "@/lib/threads";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { CitationCard } from "./CitationCard";
 import { CollectionCard } from "./CollectionCard";
+import { SourcePreviewOverlay } from "./SourcePreviewOverlay";
+import { ThinkingIndicator } from "./ThinkingIndicator";
+
+type PreviewState = {
+  workId: string;
+  excerpt: string;
+};
 
 type ChatViewProps = {
   threadId: string;
   relatedCollections: Collection[];
+  onPreviewOpenChange?: (open: boolean) => void;
 };
 
-export function ChatView({ threadId, relatedCollections }: ChatViewProps) {
+const SELECTION_ANIM_MS = 380;
+const SUGGESTIONS_EXIT_MS = 350;
+
+function renderAssistantMessage(
+  message: Message,
+  onOpenPreview: (workId: string, excerpt: string) => void
+) {
+  if (message.blocks && message.blocks.length > 0) {
+    return message.blocks.map((block, index) => {
+      if (block.type === "text") {
+        return (
+          <p key={index} className={index > 0 ? "mt-4" : undefined}>
+            {block.content}
+          </p>
+        );
+      }
+      return (
+        <CitationCard
+          key={index}
+          citation={block.citation}
+          onOpenPreview={onOpenPreview}
+        />
+      );
+    });
+  }
+
+  return (
+    <>
+      {message.content.split("\n\n").map((paragraph, index) => (
+        <p key={index} className={index > 0 ? "mt-4" : undefined}>
+          {paragraph}
+        </p>
+      ))}
+      {message.citations?.map((citation, index) => (
+        <CitationCard
+          key={index}
+          citation={citation}
+          onOpenPreview={onOpenPreview}
+        />
+      ))}
+    </>
+  );
+}
+
+export function ChatView({
+  threadId,
+  relatedCollections,
+  onPreviewOpenChange,
+}: ChatViewProps) {
   const [thread, setThread] = useState<Thread | undefined>(() =>
     typeof window !== "undefined" ? getThreadById(threadId) : undefined
   );
+  const [thinking, setThinking] = useState(() =>
+    typeof window !== "undefined" ? isThreadThinking(threadId) : false
+  );
+  const [selectingId, setSelectingId] = useState<string | null>(null);
+  const [suggestionsHidden, setSuggestionsHidden] = useState(false);
+  const [preview, setPreview] = useState<PreviewState | null>(null);
+  const { isOwned } = useEntitlements();
+
+  const handleOpenPreview = useCallback((workId: string, excerpt: string) => {
+    setPreview({ workId, excerpt });
+  }, []);
+
+  const handleClosePreview = useCallback(() => {
+    setPreview(null);
+  }, []);
 
   useEffect(() => {
-    const onChange = () => setThread(getThreadById(threadId));
+    onPreviewOpenChange?.(preview !== null);
+  }, [preview, onPreviewOpenChange]);
+
+  const previewWork = preview ? getWorkById(preview.workId) : undefined;
+
+  useEffect(() => {
+    const onChange = () => {
+      const updated = getThreadById(threadId);
+      setThread(updated);
+      if (updated && !updated.collectionId) {
+        setSuggestionsHidden(false);
+        setSelectingId(null);
+      }
+    };
     window.addEventListener("okina-threads-changed", onChange);
     return () => window.removeEventListener("okina-threads-changed", onChange);
   }, [threadId]);
+
+  useEffect(() => {
+    const onThinking = (e: Event) => {
+      const detail = (e as CustomEvent<{ threadId: string }>).detail;
+      if (detail.threadId === threadId) {
+        setThinking(isThreadThinking(threadId));
+      }
+    };
+    window.addEventListener("okina-thinking-changed", onThinking);
+    return () =>
+      window.removeEventListener("okina-thinking-changed", onThinking);
+  }, [threadId]);
+
+  const handleCollectionSelect = useCallback(
+    async (collectionId: string) => {
+      if (selectingId) return;
+
+      setSelectingId(collectionId);
+
+      await new Promise((resolve) => setTimeout(resolve, SELECTION_ANIM_MS));
+
+      setSuggestionsHidden(true);
+      await new Promise((resolve) => setTimeout(resolve, SUGGESTIONS_EXIT_MS));
+
+      await selectCollectionWithReply(threadId, collectionId);
+      setSelectingId(null);
+    },
+    [selectingId, threadId]
+  );
 
   if (!thread) {
     return (
@@ -34,7 +154,12 @@ export function ChatView({ threadId, relatedCollections }: ChatViewProps) {
     );
   }
 
-  const showSuggestions = !thread.collectionId && thread.messages.length > 0;
+  const lastMessage = thread.messages[thread.messages.length - 1];
+  const showSuggestions =
+    !thread.collectionId &&
+    lastMessage?.role === "assistant" &&
+    !thinking &&
+    !suggestionsHidden;
 
   return (
     <div className="px-5 pt-2">
@@ -63,48 +188,94 @@ export function ChatView({ threadId, relatedCollections }: ChatViewProps) {
             </div>
           ) : (
             <article key={message.id} className="text-[15px] leading-relaxed text-ink">
-              {message.content.split("\n\n").map((paragraph, index) => (
-                <p key={index} className={index > 0 ? "mt-4" : undefined}>
-                  {paragraph}
-                </p>
-              ))}
-              {message.citations && message.citations.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {message.citations.map((cite) => {
-                    const work = getWorkById(cite.workId);
-                    return (
-                      <div
-                        key={cite.workId}
-                        className="rounded-lg bg-bg/80 px-3 py-2 text-xs leading-relaxed text-ink/80"
-                      >
-                        {work && (
-                          <p className="font-semibold text-ink">
-                            📖 {work.title}
-                          </p>
-                        )}
-                        <p className="mt-1">{cite.excerpt}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              {renderAssistantMessage(message, handleOpenPreview)}
             </article>
           )
         )}
+
+        <AnimatePresence>
+          {thinking && (
+            <motion.div
+              key="thinking"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <ThinkingIndicator />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {showSuggestions && (
-        <section className="mt-8">
-          <h2 className="mb-3 text-sm font-semibold text-muted">
-            関連コレクション
-          </h2>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-            {relatedCollections.map((collection) => (
-              <CollectionCard key={collection.id} collection={collection} variant="square" />
-            ))}
-          </div>
-        </section>
-      )}
+      <AnimatePresence>
+        {showSuggestions && (
+          <motion.section
+            key="collection-suggestions"
+            className="mt-8 overflow-hidden"
+            initial={{ opacity: 1, height: "auto" }}
+            exit={{
+              opacity: 0,
+              height: 0,
+              marginTop: 0,
+              transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+            }}
+          >
+            <h2 className="mb-3 text-sm font-semibold text-muted">
+              関連コレクション
+            </h2>
+            <p className="mb-3 text-xs text-muted">
+              テーマを選ぶと、そのコレクションの本を参照して回答します
+            </p>
+            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+              {relatedCollections.map((collection, index) => {
+                const isSelected = selectingId === collection.id;
+                const isDimmed = Boolean(selectingId && !isSelected);
+
+                return (
+                  <motion.div
+                    key={collection.id}
+                    layout
+                    initial={{ opacity: 1, scale: 1, y: 0 }}
+                    animate={{
+                      opacity: isDimmed ? 0 : 1,
+                      scale: isSelected ? 1.06 : isDimmed ? 0.88 : 1,
+                      y: isSelected ? -6 : 0,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 320,
+                      damping: 26,
+                      delay: isDimmed ? index * 0.04 : 0,
+                    }}
+                    className="shrink-0"
+                    style={{ pointerEvents: selectingId ? "none" : "auto" }}
+                  >
+                    <CollectionCard
+                      collection={collection}
+                      variant="square"
+                      onSelect={handleCollectionSelect}
+                      dimmed={isDimmed}
+                    />
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {previewWork && preview && (
+          <SourcePreviewOverlay
+            key="source-preview"
+            work={previewWork}
+            citationExcerpt={preview.excerpt}
+            owned={isOwned(preview.workId)}
+            onClose={handleClosePreview}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

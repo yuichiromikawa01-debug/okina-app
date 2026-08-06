@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import type { Collection, Work } from "@/domain/types";
 import { BookList, InlineBookCard } from "./BookCard";
 import { CoverImage } from "./CoverImage";
-import { startChat } from "@/lib/threads";
 import { useImmersiveTheme } from "@/contexts/immersive-theme";
 import { useHeroImageTheme } from "@/hooks/useHeroImageTheme";
 import { EssayParagraph } from "@/lib/essay-format";
@@ -62,11 +61,7 @@ export function CollectionDetail({
   );
 
   const handleBookSelect = (work: Work) => {
-    const thread = startChat(
-      `「${work.title}」（${work.author}）について教えて`,
-      collection.id
-    );
-    router.push(`/chat/${thread.id}`);
+    router.push(`/works/${work.id}`);
   };
 
   const immersiveStyle = {
@@ -169,8 +164,8 @@ export function CollectionDetail({
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 px-5 pb-5 text-center">
-            <h1 className="text-[28px] font-bold leading-tight tracking-tight text-white drop-shadow-sm">
+          <div className="absolute bottom-0 left-0 right-0 px-5 pb-3 text-center translate-y-1">
+            <h1 className="text-[28px] font-normal leading-tight tracking-tight text-white drop-shadow-sm">
               {collection.title}
             </h1>
             <p className="mt-1.5 text-sm font-medium text-white/75">
@@ -180,12 +175,12 @@ export function CollectionDetail({
         </div>
 
         {/* Lead + long-form essay — below hero, no overlap with title overlay */}
-        <section className="relative z-10 px-5 pt-6">
+        <section className="relative z-10 px-5 pt-10">
           <p className="text-[15px] leading-relaxed text-white/75">
             {collection.description}
           </p>
 
-          <article className="essay-body essay-body--dark mt-8">
+          <article className="essay-body essay-body--dark mt-10">
             {essayBlocks.map((block, i) => (
               <div key={i} className="essay-block">
                 <EssayParagraph text={block.text} />
@@ -205,7 +200,7 @@ export function CollectionDetail({
 
       {/* Complete collection book list */}
       <section className="mt-10 border-t border-white/10 px-5 pt-8">
-        <h2 className="mb-4 text-lg font-bold text-white">このコレクションの本</h2>
+        <h2 className="mb-4 text-[22px] font-medium text-white">このコレクションの本</h2>
         <p className="mb-3 text-sm text-white/53">
           全{works.length}冊
         </p>

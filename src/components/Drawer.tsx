@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useThreads } from "@/hooks/useThreads";
-import { formatRelativeDate } from "@/lib/utils";
 
 type DrawerProps = {
   open: boolean;
@@ -43,12 +42,14 @@ export function Drawer({ open, onClose }: DrawerProps) {
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 320 }}
           >
-            <div className="flex items-center justify-between px-5 pt-14 pb-4">
-              <h2 className="font-display text-xl tracking-tight">会話</h2>
+            <div className="flex items-center justify-between px-5 pt-12 pb-3">
+              <span className="font-display text-[22px] font-normal tracking-tight text-ink">
+                Okina
+              </span>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-full p-2 text-ink/60 hover:bg-black/5"
+                className="-mr-2 rounded-full p-2 text-ink/60 hover:bg-black/5"
                 aria-label="閉じる"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -57,13 +58,39 @@ export function Drawer({ open, onClose }: DrawerProps) {
               </button>
             </div>
 
-            <nav className="px-5 pb-3">
+            <nav className="space-y-1 px-5 pb-3">
+              <Link
+                href="/"
+                onClick={onClose}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium hover:bg-black/5"
+              >
+                <svg
+                  className="shrink-0 text-ink"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M12 3 2 12h3v9h6v-6h2v6h6v-9h3L12 3z" />
+                </svg>
+                ホーム
+              </Link>
               <Link
                 href="/library"
                 onClick={onClose}
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-medium hover:bg-black/5"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/30 text-sm">📚</span>
+                <svg
+                  className="shrink-0 text-ink"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2H6zm0 2h5v16H6V4zm7 0h5v16h-5V4z" />
+                </svg>
                 ライブラリ
               </Link>
             </nav>
@@ -87,9 +114,6 @@ export function Drawer({ open, onClose }: DrawerProps) {
                       >
                         <p className="text-[15px] font-medium leading-snug line-clamp-2">
                           {thread.title}
-                        </p>
-                        <p className="mt-1 text-xs text-muted">
-                          {formatRelativeDate(thread.updatedAt)}
                         </p>
                       </Link>
                     </li>

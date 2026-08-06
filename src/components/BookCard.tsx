@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Work } from "@/domain/types";
 import { CoverImage } from "./CoverImage";
 
@@ -19,16 +20,8 @@ export function InlineBookCard({
   inverted?: boolean;
   onSelect?: (work: Work) => void;
 }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect?.(work)}
-      className={`my-5 flex w-full items-start gap-3.5 rounded-xl px-3 py-3 text-left transition active:scale-[0.99] ${
-        inverted
-          ? "bg-white/[0.06] hover:bg-white/[0.1]"
-          : "bg-black/[0.03] hover:bg-black/[0.05]"
-      }`}
-    >
+  const inner = (
+    <>
       <CoverImage
         src={work.coverImage}
         alt={work.title}
@@ -63,7 +56,27 @@ export function InlineBookCard({
           <p className="mt-1.5 text-xs text-white/40">{work.author}</p>
         )}
       </div>
-    </button>
+    </>
+  );
+
+  const className = `my-5 flex w-full items-start gap-3.5 rounded-xl px-3 py-3 text-left transition active:scale-[0.99] ${
+    inverted
+      ? "bg-white/[0.06] hover:bg-white/[0.1]"
+      : "bg-black/[0.03] hover:bg-black/[0.05]"
+  }`;
+
+  if (onSelect) {
+    return (
+      <button type="button" onClick={() => onSelect(work)} className={className}>
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link href={`/works/${work.id}`} className={className}>
+      {inner}
+    </Link>
   );
 }
 
@@ -81,7 +94,10 @@ export function BookCard({
 
   if (variant === "track") {
     return (
-      <div className="flex items-center gap-3 py-2.5">
+      <Link
+        href={`/works/${work.id}`}
+        className="flex items-center gap-3 py-2.5 transition active:opacity-80"
+      >
         <CoverImage
           src={work.coverImage}
           alt={work.title}
@@ -102,28 +118,27 @@ export function BookCard({
             {work.author}
           </p>
         </div>
-        <button
-          type="button"
+        <span
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
             inverted
-              ? "text-white/53 hover:bg-white/10"
-              : "text-muted/70 hover:bg-black/5"
+              ? "text-white/53"
+              : "text-muted/70"
           }`}
-          aria-label={`${work.title}のオプション`}
+          aria-hidden
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="2" />
             <circle cx="12" cy="12" r="2" />
             <circle cx="12" cy="19" r="2" />
           </svg>
-        </button>
-      </div>
+        </span>
+      </Link>
     );
   }
 
   if (variant === "grid") {
     return (
-      <div className="block">
+      <Link href={`/works/${work.id}`} className="block transition active:opacity-80">
         <CoverImage
           src={work.coverImage}
           alt={work.title}
@@ -135,12 +150,15 @@ export function BookCard({
           {work.title}
         </p>
         <p className="text-xs text-muted">{work.author}</p>
-      </div>
+      </Link>
     );
   }
 
   return (
-    <div className="flex gap-3 py-2">
+    <Link
+      href={`/works/${work.id}`}
+      className="flex gap-3 py-2 transition active:opacity-80"
+    >
       <CoverImage
         src={work.coverImage}
         alt={work.title}
@@ -154,7 +172,7 @@ export function BookCard({
         <p className="text-sm text-muted">{work.author}</p>
         <p className="mt-1 text-xs text-muted line-clamp-2">{work.description}</p>
       </div>
-    </div>
+    </Link>
   );
 }
 

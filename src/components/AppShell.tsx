@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useImmersiveTheme } from "@/contexts/immersive-theme";
 import { Drawer } from "./Drawer";
@@ -10,6 +9,7 @@ import { Composer } from "./Composer";
 type AppShellProps = {
   children: React.ReactNode;
   collectionId?: string;
+  workId?: string;
   threadId?: string;
   showComposer?: boolean;
   hideHeader?: boolean;
@@ -21,6 +21,7 @@ type AppShellProps = {
 export function AppShell({
   children,
   collectionId,
+  workId,
   threadId,
   showComposer = true,
   hideHeader = false,
@@ -34,8 +35,8 @@ export function AppShell({
   return (
     <div
       className={cn(
-        "mx-auto min-h-screen max-w-[390px] shadow-xl",
-        immersive ? "shadow-black/20" : "bg-bg shadow-black/5",
+        "w-full min-h-screen md:mx-auto md:max-w-[390px] md:shadow-xl",
+        immersive ? "md:shadow-black/20" : "bg-bg md:shadow-black/5",
         className
       )}
       style={
@@ -48,7 +49,7 @@ export function AppShell({
       }
     >
       {!hideHeader && (
-        <header className="sticky top-0 z-20 flex items-center justify-between px-5 pt-12 pb-3 bg-bg/90 backdrop-blur-md">
+        <header className="sticky top-0 z-20 px-5 pt-12 pb-3 bg-bg/90 backdrop-blur-md">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
@@ -57,12 +58,6 @@ export function AppShell({
           >
             Okina
           </button>
-          <Link
-            href="/library"
-            className="text-sm font-medium text-ink/70 hover:text-ink"
-          >
-            ライブラリ
-          </Link>
         </header>
       )}
 
@@ -72,7 +67,9 @@ export function AppShell({
 
       {showComposer && (
         <Composer
+          key={threadId ?? "composer"}
           collectionId={collectionId}
+          workId={workId}
           threadId={threadId}
           variant={composerVariant}
           immersiveTint={immersive ? theme.composerBackground : undefined}

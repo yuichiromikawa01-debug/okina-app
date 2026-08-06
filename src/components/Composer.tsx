@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useReducer } from "react";
+import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
-import { startChat, sendMessage } from "@/lib/threads";
-import { getCollectionById } from "@/data/repositories";
+import {
+  startChat,
+  sendMessage,
+  getThreadById,
+  clearThreadCollection,
+  isThreadThinking,
+} from "@/lib/threads";
+import { getCollectionById, getWorkById } from "@/data/repositories";
+import type { Thread } from "@/domain/types";
 
 type ComposerProps = {
   collectionId?: string;
+  workId?: string;
   threadId?: string;
   placeholder?: string;
   variant?: "light" | "dark";
@@ -14,7 +23,8 @@ type ComposerProps = {
 };
 
 export function Composer({
-  collectionId,
+  collectionId: collectionIdProp,
+  workId,
   threadId,
   placeholder = "Okina に聞く",
   variant = "light",
@@ -23,32 +33,70 @@ export function Composer({
   const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
   const [sending, setSending] = useState(false);
+  const [thinking, setThinking] = useState(() =>
+    threadId ? isThreadThinking(threadId) : false
+  );
+  const [, refreshThread] = useReducer((count: number) => count + 1, 0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   const pathname = usePathname();
 
-  const collection = collectionId ? getCollectionById(collectionId) : undefined;
-  const displayPlaceholder = collection
-    ? `「${collection.title}」について聞く`
-    : placeholder;
+  const inChat = Boolean(threadId && pathname.startsWith("/chat/"));
+  const thread: Thread | undefined =
+    inChat && threadId ? getThreadById(threadId) : undefined;
 
   useEffect(() => {
-    if (threadId && pathname.startsWith("/chat/")) {
+    if (!inChat || !threadId) return;
+
+    const sync = () => refreshThread();
+    window.addEventListener("okina-threads-changed", sync);
+    return () => window.removeEventListener("okina-threads-changed", sync);
+  }, [inChat, threadId]);
+
+  useEffect(() => {
+    if (!threadId) return;
+
+    const onThinking = (e: Event) => {
+      const detail = (e as CustomEvent<{ threadId: string }>).detail;
+      if (detail.threadId === threadId) {
+        setThinking(isThreadThinking(threadId));
+      }
+    };
+    window.addEventListener("okina-thinking-changed", onThinking);
+    return () =>
+      window.removeEventListener("okina-thinking-changed", onThinking);
+  }, [threadId]);
+
+  const activeCollectionId = inChat
+    ? thread?.collectionId
+    : collectionIdProp;
+  const work = workId ? getWorkById(workId) : undefined;
+  const collection = activeCollectionId
+    ? getCollectionById(activeCollectionId)
+    : undefined;
+  const displayPlaceholder = work
+    ? `「${work.title}」について聞く`
+    : collection
+      ? `「${collection.title}」について聞く`
+      : placeholder;
+
+  useEffect(() => {
+    if (inChat) {
       inputRef.current?.focus();
     }
-  }, [threadId, pathname]);
+  }, [inChat, threadId]);
 
   const handleSubmit = async () => {
     const trimmed = value.trim();
-    if (!trimmed || sending) return;
+    if (!trimmed || sending || thinking) return;
 
     setSending(true);
     try {
-      if (threadId && pathname.startsWith("/chat/")) {
-        sendMessage(threadId, trimmed);
+      if (inChat && threadId) {
+        await sendMessage(threadId, trimmed);
         setValue("");
       } else {
-        const thread = startChat(trimmed, collectionId);
+        const thread = startChat(trimmed, collectionIdProp);
         setValue("");
         router.push(`/chat/${thread.id}`);
       }
@@ -64,14 +112,21 @@ export function Composer({
     }
   };
 
+  const handleClearCollection = () => {
+    if (threadId) {
+      clearThreadCollection(threadId);
+    }
+  };
+
   const hasText = value.trim().length > 0;
+  const busy = sending || thinking;
 
   const outerClass =
     variant === "dark"
-      ? "fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] border-t border-white/10 pt-4 backdrop-blur-[12px]"
+      ? "fixed bottom-0 left-0 right-0 z-30 w-full md:mx-auto md:max-w-[390px] border-t border-white/10 pt-4 backdrop-blur-[12px]"
       : immersiveTint
-        ? "fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] pt-4"
-        : "fixed bottom-0 left-0 right-0 z-30 mx-auto max-w-[390px] bg-gradient-to-t from-bg via-bg/95 to-transparent pt-4";
+        ? "fixed bottom-0 left-0 right-0 z-30 w-full md:mx-auto md:max-w-[390px] pt-4"
+        : "fixed bottom-0 left-0 right-0 z-30 w-full md:mx-auto md:max-w-[390px] bg-gradient-to-t from-bg via-bg/95 to-transparent pt-4";
 
   return (
     <div
@@ -88,8 +143,26 @@ export function Composer({
       }}
     >
       <div className="px-4 pb-3">
+        {inChat && collection && (
+          <div className="mb-2 flex items-center gap-2">
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-xs font-medium text-ink shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+              <span className="truncate">「{collection.title}」コレクション</span>
+              <button
+                type="button"
+                onClick={handleClearCollection}
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-black/6 hover:text-ink"
+                aria-label="コレクションの選択を解除"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          </div>
+        )}
+
         <div
-          className={`flex items-center gap-2 rounded-full border bg-white px-3 py-2 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-shadow ${
+          className={`flex min-h-[52px] items-center gap-2 rounded-full border bg-white px-3 py-1.5 shadow-[0_2px_12px_rgba(0,0,0,0.08)] transition-shadow ${
             focused
               ? "border-black/12 shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
               : "border-black/8"
@@ -97,7 +170,7 @@ export function Composer({
         >
           <button
             type="button"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
+            className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
             aria-label="添付"
           >
             <svg
@@ -122,34 +195,43 @@ export function Composer({
             onKeyDown={handleKeyDown}
             placeholder={displayPlaceholder}
             rows={1}
-            className="max-h-20 min-h-[36px] flex-1 resize-none bg-transparent py-1.5 text-[15px] leading-snug outline-none placeholder:text-muted/80"
+            disabled={busy}
+            className="composer-textarea max-h-20 min-h-9 flex-1 resize-none self-center bg-transparent py-2 text-[15px] leading-5 outline-none placeholder:text-muted/80 disabled:opacity-50"
           />
 
           {hasText ? (
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={sending}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-ink transition hover:brightness-105 disabled:opacity-40"
-              aria-label="送信"
+              disabled={busy}
+              className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full bg-accent text-ink transition hover:brightness-105 disabled:opacity-40"
+              aria-label={busy ? "送信中" : "送信"}
             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              {busy ? (
+                <motion.span
+                  className="h-4 w-4 rounded-full border-2 border-ink/20 border-t-ink/70"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                />
+              ) : (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              )}
             </button>
           ) : (
             <button
               type="button"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
+              className="flex h-9 w-9 shrink-0 items-center justify-center self-center rounded-full text-ink/50 transition hover:bg-black/4 hover:text-ink/70"
               aria-label="音声入力"
             >
               <svg

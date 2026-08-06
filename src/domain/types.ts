@@ -25,6 +25,10 @@ export type Work = {
   coverImage: string;
   collectionId: string;
   description: string;
+  introduction?: string;
+  priceYen: number;
+  sampleExcerpt: string;
+  content: string;
 };
 
 export type Citation = {
@@ -32,10 +36,15 @@ export type Citation = {
   excerpt: string;
 };
 
+export type MessageBlock =
+  | { type: "text"; content: string }
+  | { type: "citation"; citation: Citation };
+
 export type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  blocks?: MessageBlock[];
   citations?: Citation[];
   createdAt: string;
 };

@@ -53,9 +53,9 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${inter.variable} ${libreBaskerville.variable} h-full`}
+      className={`${inter.variable} ${libreBaskerville.variable} h-full bg-bg`}
     >
-      <body className="min-h-full antialiased">
+      <body className="min-h-full bg-bg antialiased">
         {process.env.NODE_ENV === "development" ? (
           <Script
             id="dev-sw-cleanup"

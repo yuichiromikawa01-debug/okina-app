@@ -6,7 +6,7 @@
     "category": "ライフスタイル / 文学",
     "description": "別れのあとに残る言葉と、夜更けの感情を綴ったコレクション。",
     "featured": true,
-    "order": 1
+    "order": 3
   },
   {
     "id": "wine-deep",
@@ -15,7 +15,7 @@
     "category": "フード / カルチャー",
     "description": "テロワールからグラス選びまで、ワインの奥行きを味わう。",
     "featured": true,
-    "order": 2
+    "order": 4
   },
   {
     "id": "baystars-success",
@@ -24,7 +24,7 @@
     "category": "マーケティング / 組織",
     "description": "球団再生の裏側——ファン体験と組織文化の設計。",
     "featured": false,
-    "order": 3
+    "order": 2
   },
   {
     "id": "ohtani-mind",
@@ -33,7 +33,7 @@
     "category": "スポーツ / ライフスタイル",
     "description": "二刀流の哲学——集中、準備、そして静かな野心。",
     "featured": true,
-    "order": 4
+    "order": 5
   },
   {
     "id": "twenties-goals",
@@ -42,6 +42,6 @@
     "category": "ライフスタイル",
     "description": "時間の使い方、冒険、人間関係——若さを設計する。",
     "featured": false,
-    "order": 5
+    "order": 1
   }
 ]

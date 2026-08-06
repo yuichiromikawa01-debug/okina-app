@@ -1,5 +1,4 @@
-import { AppShell } from "@/components/AppShell";
-import { ChatView } from "@/components/ChatView";
+import { ChatPageClient } from "@/components/ChatPageClient";
 import { getRelatedCollections } from "@/data/repositories";
 
 type PageProps = {
@@ -11,8 +10,9 @@ export default async function ChatPage({ params }: PageProps) {
   const relatedCollections = getRelatedCollections(4);
 
   return (
-    <AppShell threadId={threadId} hideHeader>
-      <ChatView threadId={threadId} relatedCollections={relatedCollections} />
-    </AppShell>
+    <ChatPageClient
+      threadId={threadId}
+      relatedCollections={relatedCollections}
+    />
   );
 }
